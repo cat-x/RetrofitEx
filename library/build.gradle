@@ -1,0 +1,96 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'org.jetbrains.dokka-android'
+apply plugin: 'com.github.dcendents.android-maven'
+group='com.github.cat-x'
+//name='MultiTypeRecyclerView-support-kotlin'
+version = "$version"
+
+android {
+    compileSdkVersion 28
+
+
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    compileOnly fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.0-alpha'
+    //网络框架
+    compileOnly 'com.squareup.okhttp3:okhttp:3.12.0'
+    compileOnly 'com.google.code.gson:gson:2.8.5'
+    def retrofit_version = "2.5.0"
+    compileOnly "com.squareup.retrofit2:retrofit:$retrofit_version"
+    compileOnly "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    compileOnly "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
+
+    //noinspection GradleDependency
+    compileOnly 'com.parkingwang:okhttp3-loginterceptor:latest.integration'
+    compileOnly "com.android.support:appcompat-v7:$support_version"
+    compileOnly "com.android.support:support-v4:$support_version"
+    //https://github.com/ReactiveX/RxKotlin
+    def anko_version = '0.10.8'
+
+    //anko框架
+    compileOnly "org.jetbrains.anko:anko:$anko_version"
+    compileOnly "org.jetbrains.anko:anko-coroutines:$anko_version"
+
+}
+
+//--------------------------------------------------------------------
+task generateSourcesJar(type: Jar) {
+    group = 'jar'
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = "javadoc"
+    outputDirectory = javadoc.destinationDir
+}
+
+task generateJavadoc(type: Jar, dependsOn: dokkaJavadoc) {
+    group = 'jar'
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives generateJavadoc
+    archives generateSourcesJar
+}
+repositories {
+    mavenCentral()
+}
+/*
+androidExtensions{
+    experimental = true
+}*/
